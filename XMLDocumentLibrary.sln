@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocumentLibrary", "XMLDocumentLibrary\XMLDocumentLibrary.csproj", "{254D5E32-E6C1-4454-A50F-83AA024B0DC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocumentApp", "XMLDocumentApp\XMLDocumentApp.csproj", "{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EDAA4DDB-698D-4EBA-AF35-BBDCD580D1D3}
+	EndGlobalSection
+EndGlobal
