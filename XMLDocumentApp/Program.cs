@@ -56,7 +56,7 @@ try
 {
     //var file = File.ReadAllText(@"D:\dotnet\XMLDocumentLibrary\XMLDocumentApp\books.xml");
     //file = file.Replace(Environment.NewLine, "");
-    bool isCreated = await xService.CreateDocumentAsync("Books", "This is books document", xml);
+    int isCreated = xService.CreateDocument("Books_", "This is books document", xml);
     Console.WriteLine("Is created? : " + isCreated);
 }
 catch (Exception e)
@@ -74,12 +74,12 @@ else
 }
 
 // Get document by name
-document = xService.GetDocumentByTitle("Books");
+/*document = xService.GetDocumentByTitle("Booksss");
 if (document is null) Console.WriteLine("There is no document with this title");
 else
 {
     Console.WriteLine($"Title: {document.Title}\nDescription: {document.Description}\nContent: {document.XMLDocument}");
-}
+}*/
 
 // Get all documents
 List<XMLDoc> docs = xService.GetAllDocuments()!;

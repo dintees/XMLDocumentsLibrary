@@ -59,6 +59,25 @@ namespace XMLDocumentLibrary
             catch (Exception) { return -1; }
         }
 
+        public int CountDocuments()
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(_connectionString);
+                connection.Open();
+                SqlCommand sqlCommand = new SqlCommand("SELECT COUNT(*) AS howMany FROM XMLDocument", connection);
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                reader.Read();
+                int howMany = (int)reader["howMany"];
+
+                reader.Close();
+                connection.Close();
+
+                return howMany;
+            }
+            catch (Exception) { return -1; }
+        }
+
         /// <summary>
         /// Insert document to database
         /// </summary>
@@ -67,7 +86,7 @@ namespace XMLDocumentLibrary
         /// <param name="xmlString">Content of XML document</param>
         /// <returns>Bool value represents state of inserted document. If true - document has been saved</returns>
         /// <exception cref="Exception">An error with format of XML</exception>
-        public bool CreateDocument(string title, string description, string xmlString)
+        public int CreateDocument(string title, string description, string xmlString)
         {
             // if document exists in the database
             int count = execScalarValue($"SELECT COUNT(*) AS value FROM XMLDocument WHERE title = '{title}'");
@@ -80,9 +99,24 @@ namespace XMLDocumentLibrary
                 xmlDoc.LoadXml(xmlString);
 
                 // insert document to database
-                int howMany = execNonQuery($"INSERT INTO XMLDocument (Title, Description, XDocument) VALUES (@title, @description, @xmlString)",
-                    new List<(string, string)> { ("@title", title), ("@description", description), ("@xmlString", xmlString) });
-                return (howMany > 0);
+                SqlConnection connection = new SqlConnection(_connectionString);
+                connection.Open();
+                SqlCommand insertCommand = new SqlCommand("INSERT INTO XMLDocument (Title, Description, XDocument) VALUES (@title, @description, @xmlString)", connection);
+                insertCommand.Parameters.Add(new SqlParameter("@title", title));
+                insertCommand.Parameters.Add(new SqlParameter("@description", description));
+                insertCommand.Parameters.Add(new SqlParameter("@xmlString", xmlString));
+                int numberOfInserted = insertCommand.ExecuteNonQuery();
+                int id = -1;
+                // get document id
+                if (numberOfInserted > 0)
+                {
+                    SqlCommand selectCommand = new SqlCommand("SELECT IDENT_CURRENT('XMLDocument') AS Id", connection);
+                    SqlDataReader reader = selectCommand.ExecuteReader();
+                    reader.Read();
+                    id = int.Parse(reader["Id"].ToString());
+                }
+                connection.Close();
+                return id;
             }
             catch (XmlException e)
             {
@@ -159,7 +193,7 @@ namespace XMLDocumentLibrary
                 connection.Close();
                 return xDoc;
             }
-            catch (Exception) { return null; }
+            catch (Exception) { throw new Exception("Document with this id does not exist"); }
         }
 
         /// <summary>
@@ -181,7 +215,7 @@ namespace XMLDocumentLibrary
                 connection.Close();
                 return xDoc;
             }
-            catch (Exception) { return null; }
+            catch (Exception) { throw new Exception("Document with this title does not exist"); }
         }
 
         /// <summary>
@@ -303,7 +337,8 @@ namespace XMLDocumentLibrary
                 SqlConnection connection = new SqlConnection(_connectionString);
                 connection.Open();
                 SqlCommand cmd = new SqlCommand(command, connection);
-                foreach (var param in parameters) cmd.Parameters.Add(new SqlParameter(param.Item1, param.Item2));
+                if (parameters is not null)
+                    foreach (var param in parameters) cmd.Parameters.Add(new SqlParameter(param.Item1, param.Item2));
                 int howMany = cmd.ExecuteNonQuery();
                 connection.Close();
                 return howMany;
