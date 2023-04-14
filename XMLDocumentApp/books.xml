@@ -10,13 +10,13 @@
       with XML.</description>
    </book>
    <book id="bk102">
-      <author>Ralls, Kim</author>
+      <author>Ralls Kim</author>
       <title>Midnight Rain</title>
       <genre>Fantasy</genre>
       <price>5.95</price>
       <publish_date>2000-12-16</publish_date>
       <description>A former architect battles corporate zombies, 
-      an evil sorceress, and her own childhood to become queen 
+      an evil sorceress and her own childhood to become queen 
       of the world.</description>
    </book>
    <book id="bk103">
@@ -97,13 +97,13 @@
       detail in this deep programmer's reference.</description>
    </book>
    <book id="bk111">
-      <author>O'Brien, Tim</author>
+      <author>O'Brien Tim</author>
       <title>MSXML3: A Comprehensive Guide</title>
       <genre>Computer</genre>
       <price>36.95</price>
       <publish_date>2000-12-01</publish_date>
       <description>The Microsoft MSXML3 parser is covered in 
-      detail, with attention to XML DOM interfaces, XSLT processing, 
+      detail with attention to XML DOM interfaces XSLT processing, 
       SAX and more.</description>
    </book>
    <book id="bk112">
@@ -112,8 +112,8 @@
       <genre>Computer</genre>
       <price>49.95</price>
       <publish_date>2001-04-16</publish_date>
-      <description>Microsoft Visual Studio 7 is explored in depth,
-      looking at how Visual Basic, Visual C++, C#, and ASP+ are 
+      <description>Microsoft Visual Studio 7 is explored in depth
+      looking at how Visual Basic Visual C++ C# and ASP+ are 
       integrated into a comprehensive development 
       environment.</description>
    </book>

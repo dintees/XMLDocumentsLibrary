@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocumentLibrary", "XMLDocumentLibrary\XMLDocumentLibrary.csproj", "{254D5E32-E6C1-4454-A50F-83AA024B0DC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentLibrary", "XMLDocumentLibrary\XMLDocumentLibrary.csproj", "{254D5E32-E6C1-4454-A50F-83AA024B0DC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocumentApp", "XMLDocumentApp\XMLDocumentApp.csproj", "{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentApp", "XMLDocumentApp\XMLDocumentApp.csproj", "{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocumentApp.Tests", "XMLDocumentApp.Tests\XMLDocumentApp.Tests.csproj", "{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,7 @@ using System.Data.SqlTypes;
 using System.Xml;
 using System.Threading.Tasks;
 using XMLDocumentLibrary.Models;
+using System.Collections.Concurrent;
 
 namespace XMLDocumentLibrary
 {
@@ -15,6 +16,7 @@ namespace XMLDocumentLibrary
             _connectionString = connectionString;
         }
 
+        #region DocumentOperations
         /// <summary>
         /// Validates connection iwth database
         /// </summary>
@@ -27,7 +29,8 @@ namespace XMLDocumentLibrary
                 connection.Open();
                 connection.Close();
                 return true;
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 return false;
             }
@@ -50,9 +53,10 @@ namespace XMLDocumentLibrary
 
                 await reader.CloseAsync();
                 await connection.CloseAsync();
-                
+
                 return howMany;
-            } catch (Exception) { return -1; }
+            }
+            catch (Exception) { return -1; }
         }
 
         /// <summary>
@@ -65,14 +69,19 @@ namespace XMLDocumentLibrary
         /// <exception cref="Exception">An error with format of XML</exception>
         public bool CreateDocument(string title, string description, string xmlString)
         {
+            // if document exists in the database
+            int count = execScalarValue($"SELECT COUNT(*) AS value FROM XMLDocument WHERE title = '{title}'");
+            if (count > 0) throw new Exception("Document with this title is now in the datanase");
             try
             {
+
                 // validate XML format
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(xmlString);
 
                 // insert document to database
-                int howMany = ExecNonQuery($"INSERT INTO XMLDocument (Title, Description, XDocument) VALUES ('{title}', '{description}', '{xmlString}')");
+                int howMany = execNonQuery($"INSERT INTO XMLDocument (Title, Description, XDocument) VALUES (@title, @description, @xmlString)",
+                    new List<(string, string)> { ("@title", title), ("@description", description), ("@xmlString", xmlString) });
                 return (howMany > 0);
             }
             catch (XmlException e)
@@ -91,6 +100,8 @@ namespace XMLDocumentLibrary
         /// <exception cref="Exception">An error with format of XML</exception>
         public async Task<bool> CreateDocumentAsync(string title, string description, string xmlString)
         {
+            int count = execScalarValue($"SELECT COUNT(*) AS value FROM XMLDocument WHERE title = '{title}'");
+            if (count > 0) throw new Exception("Document with this title is now in the datanase");
             try
             {
                 // validate XML format
@@ -98,7 +109,8 @@ namespace XMLDocumentLibrary
                 xmlDoc.LoadXml(xmlString);
 
                 // insert document to database
-                int howMany = await ExecNonQueryAsync($"INSERT INTO XMLDocument (Title, Description, XDocument) VALUES ('{title}', '{description}', '{xmlString}')");
+                int howMany = await execNonQueryAsync($"INSERT INTO XMLDocument (Title, Description, XDocument) VALUES (@title, @description, @xmlString)",
+                    new List<(string, string)> { ("@title", title), ("@description", description), ("@xmlString", xmlString) });
                 return (howMany > 0);
             }
             catch (XmlException e)
@@ -122,7 +134,7 @@ namespace XMLDocumentLibrary
                 List<XMLDoc> xDocs = new List<XMLDoc>();
                 while (reader.Read())
                     xDocs.Add(new XMLDoc { Id = (int)reader["Id"], Title = reader["Title"].ToString(), Description = reader["Description"].ToString(), XMLDocument = reader["XDocument"].ToString() });
-                
+
                 connection.Close();
                 return xDocs;
             }
@@ -146,7 +158,30 @@ namespace XMLDocumentLibrary
                 XMLDoc xDoc = new XMLDoc { Id = (int)reader["Id"], Title = reader["Title"].ToString(), Description = reader["Description"].ToString(), XMLDocument = reader["XDocument"].ToString() };
                 connection.Close();
                 return xDoc;
-            } catch (Exception) { return null; }
+            }
+            catch (Exception) { return null; }
+        }
+
+        /// <summary>
+        /// Gets document using title
+        /// </summary>
+        /// <param name="title">Title of the document</param>
+        /// <returns>XMLDoc object of the found document. If document does not exists -> null</returns>
+        public XMLDoc? GetDocumentByTitle(string title)
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(_connectionString);
+                connection.Open();
+                SqlCommand cmd = new SqlCommand("SELECT Id, Title, Description, XDocument FROM XMLDocument WHERE title = @title", connection);
+                cmd.Parameters.Add(new SqlParameter("@title", title));
+                SqlDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                XMLDoc xDoc = new XMLDoc { Id = (int)reader["Id"], Title = reader["Title"].ToString(), Description = reader["Description"].ToString(), XMLDocument = reader["XDocument"].ToString() };
+                connection.Close();
+                return xDoc;
+            }
+            catch (Exception) { return null; }
         }
 
         /// <summary>
@@ -172,13 +207,13 @@ namespace XMLDocumentLibrary
                 }
             }
 
-         string sqlCommand = "UPDATE XMLDocument SET"
-            + (newTitle is not null ? " Title = '" + newTitle + "'" : "")
-            + (newDescription is not null ? ", Description = '" + newDescription + "'" : "")
-            + (newXMLDocument is not null ? ", XDocument = '" + newXMLDocument + "'" : "")
-            + " WHERE id = " + id;
+            string sqlCommand = "UPDATE XMLDocument SET"
+               + (newTitle is not null ? " Title = '" + newTitle + "'" : "")
+               + (newDescription is not null ? ", Description = '" + newDescription + "'" : "")
+               + (newXMLDocument is not null ? ", XDocument = '" + newXMLDocument + "'" : "")
+               + " WHERE id = " + id;
 
-            return (ExecNonQuery(sqlCommand) > 0);
+            return (execNonQuery(sqlCommand) > 0);
         }
 
         /// <summary>
@@ -188,35 +223,124 @@ namespace XMLDocumentLibrary
         /// <returns>True if document has been deleted</returns>
         public bool DeleteDocument(int id)
         {
-            return (ExecNonQuery("DELETE FROM XMLDocument WHERE id = " + id) > 0);
+            return (execNonQuery("DELETE FROM XMLDocument WHERE id = " + id) > 0);
+        }
+#endregion
+
+        #region XMLOperation
+        /// <summary>
+        /// Get nodes from document with specific id
+        /// </summary>
+        /// <param name="id">Od of the document</param>
+        /// <param name="xQuery">xQuery or xPath expression</param>
+        /// <returns>Value of processed XML document</returns>
+        public string? GetNodes(int id, string xQuery)
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(_connectionString);
+                connection.Open();
+                SqlCommand cmd = new SqlCommand($"SELECT XDocument.query('{xQuery}') AS xml FROM XMLDocument WHERE Id = @id", connection);
+                cmd.Parameters.Add(new SqlParameter("@id", id));
+                SqlDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                string result = reader["xml"].ToString()!;
+                connection.Close();
+                return result;
+            }
+            catch (Exception e) { Console.WriteLine(e.Message); return null; }
         }
 
+        public bool AddNewNode(int id, string newNodeString, string xQuery)
+        {
+            bool isValid = validateXML(newNodeString);
+            if (isValid)
+            {
+                int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('insert {newNodeString} as last into ({xQuery})') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
+                return (howMany > 0);
+            }
+            else return false;
+        }
 
-        private int ExecNonQuery(string command)
+        public bool EditNodeText(int id, string xQuery, string newValue)
+        {
+            int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('replace value of ({xQuery}/text())[1] with \"{@newValue}\"') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
+            return (howMany > 0);
+        }
+
+        public bool AddAttributeToNode(int id, string xQuery, string nameOfAttribute, string valueOfAttribute)
+        {
+            int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('insert attribute {nameOfAttribute}{{\"{valueOfAttribute}\"}} into ({xQuery})[1]') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
+            return (howMany > 0);
+        }
+
+        public bool RemoveAttributeFromNode(int id, string xQuery, string nameOfAttribute)
+        {
+            int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('delete {xQuery}/@{nameOfAttribute}') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
+            return (howMany > 0);
+        }
+        #endregion
+
+        #region auxuliaryFunctions
+        private static bool validateXML(string xmlString)
+        {
+            try
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(xmlString);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private int execNonQuery(string command, List<(string, string)>? parameters = null)
         {
             try
             {
                 SqlConnection connection = new SqlConnection(_connectionString);
                 connection.Open();
                 SqlCommand cmd = new SqlCommand(command, connection);
+                foreach (var param in parameters) cmd.Parameters.Add(new SqlParameter(param.Item1, param.Item2));
                 int howMany = cmd.ExecuteNonQuery();
                 connection.Close();
                 return howMany;
             }
+            catch (Exception e) { Console.WriteLine(e.Message); return -1; }
+        }
+
+        private int execScalarValue(string command)
+        {
+            try
+            {
+                SqlConnection connection = new SqlConnection(_connectionString);
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(command, connection);
+                var reader = cmd.ExecuteReader(); reader.Read();
+                int value = (int)reader["value"];
+                connection.Close();
+                return value;
+            }
             catch (Exception) { return -1; }
         }
 
-        private async Task<int> ExecNonQueryAsync(string command)
+        private async Task<int> execNonQueryAsync(string command, List<(string, string)>? parameters = null)
         {
             try
             {
                 SqlConnection connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
                 SqlCommand cmd = new SqlCommand(command, connection);
+                if (parameters is not null)
+                    foreach (var param in parameters) cmd.Parameters.Add(new SqlParameter(param.Item1, param.Item2));
                 int howMany = await cmd.ExecuteNonQueryAsync();
                 await connection.CloseAsync();
                 return howMany;
-            } catch (Exception) { return -1; }
+            }
+            catch (Exception e) { await Console.Out.WriteLineAsync(e.Message); return -1; }
         }
+        #endregion
     }
 }
