@@ -92,10 +92,10 @@ foreach (XMLDoc doc in docs)
 // Console.WriteLine("Modified? : " + xService.ModifyDocument(5, "People", "Better XML document", xml));
 
 // Delete document
-Console.WriteLine("Deleted? : " + xService.DeleteDocument(7));
+Console.WriteLine("Deleted? : " + xService.DeleteDocumentById(7));
 
 // Finding element using XQuery
-Console.WriteLine("Finding elements: " + xService.GetNodes(17, "catalog/book/author"));
+Console.WriteLine("Found element: " + xService.GetNodes(17, "catalog/book/author"));
 
 // Add new person to the end of catalog node
 // Console.WriteLine("Created new node ? " + xService.AddNewNode(17, "<boaok><title>Lalka</title><author>Boleslaw Prus</author></book>", "catalog[1]"));

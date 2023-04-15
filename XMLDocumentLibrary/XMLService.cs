@@ -235,9 +235,9 @@ namespace XMLDocumentLibrary
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(newXMLDocument);
                 }
-                catch (XmlException)
+                catch (XmlException e)
                 {
-                    return false;
+                    throw new Exception("XML format is invalid: " + e.Message);
                 }
             }
 
@@ -247,7 +247,9 @@ namespace XMLDocumentLibrary
                + (newXMLDocument is not null ? ", XDocument = '" + newXMLDocument + "'" : "")
                + " WHERE id = " + id;
 
-            return (execNonQuery(sqlCommand) > 0);
+            int howMany = execNonQuery(sqlCommand);
+            if (howMany == 0) throw new Exception("There is no document with this id");
+            return true;
         }
 
         /// <summary>
@@ -255,11 +257,20 @@ namespace XMLDocumentLibrary
         /// </summary>
         /// <param name="id">Id of the document</param>
         /// <returns>True if document has been deleted</returns>
-        public bool DeleteDocument(int id)
+        public bool DeleteDocumentById(int id)
         {
             return (execNonQuery("DELETE FROM XMLDocument WHERE id = " + id) > 0);
         }
-#endregion
+
+        /// <summary>
+        /// Deletes all documents from the database
+        /// </summary>
+        /// <returns>Number of deleted rows</returns>
+        public int DeleteAllDocuments()
+        {
+            return (execNonQuery("DELETE FROM XMLDocument"));
+        }
+        #endregion
 
         #region XMLOperation
         /// <summary>
@@ -282,10 +293,10 @@ namespace XMLDocumentLibrary
                 connection.Close();
                 return result;
             }
-            catch (Exception e) { Console.WriteLine(e.Message); return null; }
+            catch (Exception) { return null; }
         }
 
-        public bool AddNewNode(int id, string newNodeString, string xQuery)
+        public bool AddNewNode(int id, string xQuery, string newNodeString)
         {
             bool isValid = validateXML(newNodeString);
             if (isValid)
@@ -300,6 +311,19 @@ namespace XMLDocumentLibrary
         {
             int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('replace value of ({xQuery}/text())[1] with \"{@newValue}\"') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
             return (howMany > 0);
+        }
+
+        public string GetValueOfAttribute(int id, string xQuery, string nameOfAttribute) {
+            SqlConnection connection = new SqlConnection(_connectionString);
+            connection.Open();
+            SqlCommand cmd = new SqlCommand($"SELECT XDocument.value('({xQuery}/@{nameOfAttribute})[1]', 'varchar(255)') AS value FROM XMLDocument WHERE Id = @id", connection);
+            cmd.Parameters.Add(new SqlParameter("@id", id));
+            SqlDataReader reader = cmd.ExecuteReader();
+            reader.Read();
+            string result = reader["value"].ToString()!;
+            connection.Close();
+            if (result == "") throw new Exception("There is no attribute with this name in node");
+            return result;
         }
 
         public bool AddAttributeToNode(int id, string xQuery, string nameOfAttribute, string valueOfAttribute)
