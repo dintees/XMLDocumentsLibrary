@@ -12,7 +12,7 @@ if (!xService.CheckConnection())
 
 Console.WriteLine("Connected to dababase!");
 
-Console.WriteLine($"Number of XML documents: {await xService.CountDocumentsAsync()}");
+Console.WriteLine($"Number of XML documents: {xService.CountDocuments()}");
 
 var xml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <people>
@@ -104,7 +104,29 @@ Console.WriteLine("Found element: " + xService.GetNodes(17, "catalog/book/author
 Console.WriteLine("Edited node text ? " + xService.EditNodeText(17, "catalog/book[3]/title", "Lalka"));
 
 // Add attribute to node
-Console.WriteLine("Added attribute ? " + xService.AddAttributeToNode(17, "catalog/book[3]", "id", "bk103"));
+// Console.WriteLine("Added attribute ? " + xService.AddAttributeToNode(17, "catalog/book[3]", "test", "bk103"));
 
 // Remove attribute from node
 Console.WriteLine("Removed attribute? : " + xService.RemoveAttributeFromNode(17, "catalog/book[3]", "age"));
+
+/*List<string>? stringDocs = xService.GetAllDocumentNodesValues(17, "//authors");
+if (stringDocs is not null)
+{
+    Console.WriteLine(stringDocs.Count());
+} else
+{
+    Console.WriteLine("!!!");
+}*/
+
+try
+{
+    var listOfDictionaries = xService.GetStructuredNodes(17, "//book", new string[] { "title", "author" });
+    foreach (var i in listOfDictionaries)
+    {
+        Console.WriteLine("Author: " + i["author"] + " Title: " + i["title"]);
+    }
+    Console.WriteLine(listOfDictionaries.Count());
+} catch (Exception e)
+{
+    Console.WriteLine(e.Message);
+}
