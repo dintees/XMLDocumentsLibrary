@@ -42,7 +42,8 @@ namespace XMLDocumentApp.Tests
             string title = "books_" + DateTime.Now.ToString("hh.mm.ss.ffffff");
             _xService.CreateDocument(title, "description", xml);
 
-            Assert.Throws<Exception>(() => _xService.CreateDocument(title, "description", xml));
+            var caughtException = Assert.Throws<Exception>(() => _xService.CreateDocument(title, "description", xml));
+            Assert.Equal("Document with this title is now in the database", caughtException.Message);
         }
 
         [Fact]
@@ -60,13 +61,15 @@ namespace XMLDocumentApp.Tests
         [Fact]
         public void Should_ThrowException_When_DocumentWithTheTitleDoesNotExist()
         {
-            Assert.Throws<Exception>(() => _xService.GetDocumentByTitle("titleThatNotExist"));
+            var ex = Assert.Throws<Exception>(() => _xService.GetDocumentByTitle("titleThatNotExist"));
+            Assert.Equal("Document with this title does not exist", ex.Message);
         }
 
         [Fact]
         public void Should_ThrowException_When_DocumentWithIdDoesNotExist()
         {
-            Assert.Throws<Exception>(() => _xService.GetDocumentById(-123));
+            var ex = Assert.Throws<Exception>(() => _xService.GetDocumentById(-123));
+            Assert.Equal("Document with this id does not exist", ex.Message);
         }
 
         [Fact]
@@ -90,13 +93,14 @@ namespace XMLDocumentApp.Tests
 
             int id = _xService.CreateDocument("book", "testing", xml);
 
-            Assert.Throws<Exception>(() => _xService.ModifyDocument(id, "newBook", "testing", "<book></boook>"));
+            Assert.Throws<XmlException>(() => _xService.ModifyDocument(id, "newBook", "testing", "<book></boook>"));
         }
 
         [Fact]
         public void Should_ThrowException_When_ModifiedDocumentDoesNotExist()
         {
-            Assert.Throws<Exception>(() => _xService.ModifyDocument(-123, "newBook", "testing"));
+            var ex = Assert.Throws<Exception>(() => _xService.ModifyDocument(-123, "newBook", "testing"));
+            Assert.Equal("There is no document with this id", ex.Message);
         }
 
         [Fact]
@@ -162,7 +166,7 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
-        public void Should_ReturnEmptyString_When_NodeDoesNotExist()
+        public void Should_ReturnNull_When_NodeDoesNotExist()
         {
             var xml = @"<catalog>
             <book id=""1"">
@@ -178,7 +182,27 @@ namespace XMLDocumentApp.Tests
             int id = _xService.CreateDocument("books", "testing", xml);
 
             string xmlString = _xService.GetNodes(id, "catalog/title")!;
-            Assert.Equal("", xmlString);
+            Assert.Null(xmlString);
+        }
+
+        [Fact]
+        public void Should_ReturnNull_When_NodeDoesNotExistDuringReadingNodeText()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            string text = _xService.GetNodeText(id, "catalog/title")!;
+            Assert.Null(text);
         }
 
         [Fact]
@@ -239,9 +263,47 @@ namespace XMLDocumentApp.Tests
             int id = _xService.CreateDocument("books", "testing", xml);
 
             List<string> docs = _xService.GetAllDocumentNodesQueries(id, "//book/author")!;
-            Assert.Equal(2, docs.Count());
+            Assert.Equal(2, docs.Count);
             Assert.Equal("<author>Boleslaw Prus</author>", docs[0]);
             Assert.Equal("<author>Adam Mickiewicz</author>", docs[1]);
+        }
+
+        [Fact]
+        public void Should_ReturnNull_When_NodeHasNoAttribute()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"" test=""test"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            Dictionary<string, string>? docs = _xService.GetAllAttributes(id, "catalog/book[2]/title");
+            Assert.Null(docs);
+        }
+
+        [Fact]
+        public void Should_ThrowException_When_NodeDoesNotExistDuringGettingAllAttributes()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"" test=""test"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            var caughtException = Assert.Throws<Exception>(() => _xService.GetAllAttributes(id, "catalog/books[1]/title"));
+            Assert.Equal("Node with this path does not exist", caughtException.Message);
         }
 
         [Fact]
@@ -260,7 +322,7 @@ namespace XMLDocumentApp.Tests
             int id = _xService.CreateDocument("books", "testing", xml);
 
             Dictionary<string, string> docs = _xService.GetAllAttributes(id, "catalog/book[2]")!;
-            Assert.Equal(2, docs.Count());
+            Assert.Equal(2, docs.Count);
             Assert.Equal("2", docs["id"]);
             Assert.Equal("test", docs["test"]);
         }
@@ -365,6 +427,69 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
+        public void Should_ReturnNull_When_AttributeDoesNotExist()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            var docs = _xService.GetNodesWithAttribute(id, "//book", "id", "3");
+            Assert.Null(docs);
+        }
+
+        [Fact]
+        public void Should_ReturnListOfStrings_When_AttributeExistsAndTheValueIsNotGiven()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            var docs = _xService.GetNodesWithAttribute(id, "//book", "id");
+            Assert.IsType<List<string>>(docs);
+            Assert.Equal(2, docs.Count);
+        }
+
+        [Fact]
+        public void Should_ReturnListOfStrings_When_SearchingAttributeWithValueExists()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            var docs = _xService.GetNodesWithAttribute(id, "//book", "id", "2");
+            Assert.IsType<List<string>>(docs);
+            Assert.Single(docs);
+            Assert.Equal(@"<book id=""2""><title>Pan Tadeusz</title><author>Adam Mickiewicz</author></book>", docs[0]);
+        }
+
+        [Fact]
         public void Should_ReturnDictionaryWithValues_When_GettingStructuredNodes()
         {
             var xml = @"<catalog>
@@ -387,6 +512,26 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
+        public void Should_ReturnNull_When_NodeWithTheNameDoNotExistDuringGettialAllDocumentsWithTheName()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            List<string> docs = _xService.GetAllDocumentNodesValues(id, "//book/authors")!;
+            Assert.Null(docs);
+        }
+
+        [Fact]
         public void Should_ReturnListOfString_When_NodeWithTheNameExists()
         {
             var xml = @"<catalog>
@@ -403,13 +548,33 @@ namespace XMLDocumentApp.Tests
             int id = _xService.CreateDocument("books", "testing", xml);
 
             List<string> docs = _xService.GetAllDocumentNodesValues(id, "//book/author")!;
-            Assert.Equal(2, docs.Count());
+            Assert.Equal(2, docs.Count);
             Assert.Equal("Boleslaw Prus", docs[0]);
             Assert.Equal("Adam Mickiewicz", docs[1]);
         }
 
         [Fact]
-        public void Should_ChangeTextNode_When_NodeExists()
+        public void Should_ReturnFalse_When_NodeDoesNotExistDuringEditingTextNode()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            bool isModified = _xService.EditNodeText(id, "catalog/book[4]/title", "Sonety krymskie");
+            Assert.False(isModified);
+        }
+
+        [Fact]
+        public void Should_ChangeTextNodeAndReturnTrue_When_NodeExists()
         {
             var xml = @"<catalog>
             <book id=""1"">
@@ -432,7 +597,7 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
-        public void Should_ReturnFalse_When_XMLIsNotValid()
+        public void Should_ThrowException_When_XMLIsNotValid()
         {
             var xml = @"<catalog>
             <book id=""1"">
@@ -447,8 +612,7 @@ namespace XMLDocumentApp.Tests
 
             int id = _xService.CreateDocument("books", "testing", xml);
 
-            bool isModified = _xService.AddNewNode(id, "catalog[1]", "<book><title>Pan Wolodyjowski</title><author>Henryk Sienkiewicz</author></boook>");
-            Assert.False(isModified);
+            Assert.Throws<XmlException>(() => _xService.AddNewNode(id, "catalog[1]", "<book><title>Pan Wolodyjowski</title><author>Henryk Sienkiewicz</author></boook>"));
         }
 
         [Fact]
@@ -467,7 +631,7 @@ namespace XMLDocumentApp.Tests
 
             int id = _xService.CreateDocument("books", "testing", xml);
 
-            bool isModified = _xService.AddNewNode(id, "books[1]", "<book><title>Pan Wolodyjowski</title><author>Henryk Sienkiewicz</author></boook>");
+            bool isModified = _xService.AddNewNode(id, "books[1]", "<book><title>Pan Wolodyjowski</title><author>Henryk Sienkiewicz</author></book>");
             Assert.False(isModified);
         }
 
@@ -514,7 +678,27 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
-        public void Should_AddAttributeToNode_When_NodeExists()
+        public void Should_ReturnFalse_When_NodeExistsDuringAddingAttributeToNode()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            bool isModified = _xService.AddAttributeToNode(id, "catalog/book[3]", "ISBN", "123456");
+            Assert.False(isModified);;
+        }
+
+        [Fact]
+        public void Should_AddAttributeToNodeAndReturnTrue_When_NodeExistsDuringAddingAttriuteToNode()
         {
             var xml = @"<catalog>
             <book id=""1"">
@@ -558,7 +742,7 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
-        public void Should_RemoveAttributeToNode_When_NodeAndAttributeExists()
+        public void Should_ReturnFalse_When_NodeDoesNotExistDuringRemovingTheAttribute()
         {
             var xml = @"<catalog>
             <book id=""1"">
@@ -573,13 +757,32 @@ namespace XMLDocumentApp.Tests
 
             int id = _xService.CreateDocument("books", "testing", xml);
 
-            bool isModified = _xService.RemoveAttributeFromNode(id, "catalog/book[2]", "id");
-
-            Assert.Throws<Exception>(() => _xService.GetValueOfAttribute(id, "catalog/book[2]", "id"));
+            bool isRemoved = _xService.RemoveAttributeFromNode(id, "catalog/book[3]", "id");
+            Assert.False(isRemoved);
         }
 
         [Fact]
-        public void Should_DeleteNodeFromDocument_When_NodeStructureIsCorrect()
+        public void Should_ReturnFalse_When_NodeStructureIsInCorrectDuringDeletingNode()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            bool isDeleted = _xService.DeleteNodeFromDocument(id, "catalog/book[3]/title");
+            Assert.False(isDeleted);
+        }
+
+        [Fact]
+        public void Should_DeleteNodeFromDocumentAndReturnTrue_When_NodeStructureIsCorrectDuringDeleteNode()
         {
             var xml = @"<catalog>
             <book id=""1"">
@@ -601,6 +804,5 @@ namespace XMLDocumentApp.Tests
         }
 
         #endregion
-
     }
 }

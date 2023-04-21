@@ -1,4 +1,5 @@
-﻿using XMLDocumentLibrary;
+﻿using System.ComponentModel.DataAnnotations;
+using XMLDocumentLibrary;
 using XMLDocumentLibrary.Models;
 
 string conenctionString = @"DATA SOURCE=MSSQLServer;INITIAL CATALOG=BD2_Project;Server=(localdb)\mssqllocaldb";
@@ -101,10 +102,12 @@ Console.WriteLine("Found element: " + xService.GetNodes(17, "catalog/book/author
 // Console.WriteLine("Created new node ? " + xService.AddNewNode(17, "<boaok><title>Lalka</title><author>Boleslaw Prus</author></book>", "catalog[1]"));
 
 // Edit node text
-Console.WriteLine("Edited node text ? " + xService.EditNodeText(17, "catalog/book[3]/title", "Lalka"));
+Console.WriteLine("Edited node text ? " + xService.EditNodeText(17, "catalog/book[3]/title", "Boleslaw Prus"));
 
 // Add attribute to node
 // Console.WriteLine("Added attribute ? " + xService.AddAttributeToNode(17, "catalog/book[3]", "test", "bk103"));
+
+// var a = xService.GetAllAttributes(17, "catalog/books[2]/title");
 
 // Remove attribute from node
 Console.WriteLine("Removed attribute? : " + xService.RemoveAttributeFromNode(17, "catalog/book[3]", "age"));
@@ -121,12 +124,13 @@ if (stringDocs is not null)
 try
 {
     var listOfDictionaries = xService.GetStructuredNodes(17, "//book", new string[] { "title", "author" });
-    foreach (var i in listOfDictionaries)
+    if (listOfDictionaries is not null)
     {
-        Console.WriteLine("Author: " + i["author"] + " Title: " + i["title"]);
+        foreach (var i in listOfDictionaries) Console.WriteLine("Author: " + i["author"] + " Title: " + i["title"]);
+        Console.WriteLine(listOfDictionaries.Count);
     }
-    Console.WriteLine(listOfDictionaries.Count());
-} catch (Exception e)
+}
+catch (Exception e)
 {
     Console.WriteLine(e.Message);
 }
