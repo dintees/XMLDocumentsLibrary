@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using XMLDocumentLibrary.Models;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Data;
 
 namespace XMLDocumentLibrary
 {
@@ -301,7 +303,7 @@ namespace XMLDocumentLibrary
             }
             catch (Exception) { return null; }
         }
-        
+
         /// <summary>
         /// Gets values of specified node by path in document with the given id
         /// </summary>
@@ -493,6 +495,41 @@ namespace XMLDocumentLibrary
         }
 
         /// <summary>
+        /// Renames the node
+        /// </summary>
+        /// <param name="id">Id of the document</param>
+        /// <param name="xQuery">xQuery ox XPath expression</param>
+        /// <param name="newName">New text value of the name</param>
+        /// <returns>True if the node has been modified, false otherwise</returns>
+        public bool EditNodeName(int id, string xQuery, string newName)
+        {
+            if (!CheckNodeIfExists(id, xQuery)) return false;
+            SqlConnection connection = new SqlConnection(_connectionString);
+            connection.Open();
+            using (SqlCommand insertNodeCommand = new SqlCommand($"UPDATE XMLDocument SET XDocument.modify('insert <{newName}>{{{xQuery}/node()}}</{newName}> after ({xQuery})[1]') WHERE Id = @id; ", connection))
+            {
+                insertNodeCommand.Parameters.AddWithValue("@id", id);
+                    /*
+                    SqlParameter newElementNameParam = new SqlParameter("@newElementName", SqlDbType.NVarChar);
+                    newElementNameParam.Value = newName;
+                    command.Parameters.Add(newElementNameParam);*/
+
+                int howMany = insertNodeCommand.ExecuteNonQuery();
+                if (howMany > 0)
+                {
+                    using (SqlCommand deleteOldNodeCommand = new SqlCommand($"UPDATE XMLDocument SET XDocument.modify('delete {xQuery}') WHERE Id = @id;", connection))
+                    {
+                        deleteOldNodeCommand.Parameters.AddWithValue("@id", id);
+
+                        howMany = deleteOldNodeCommand.ExecuteNonQuery();
+                        return (howMany > 0);
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Edits node text
         /// </summary>
         /// <param name="id">If of the document</param>
@@ -615,21 +652,21 @@ namespace XMLDocumentLibrary
             catch (Exception) { return -1; }
         }
 
-/*        private async Task<int> execNonQueryAsync(string command, List<(string, string)>? parameters = null)
-        {
-            try
-            {
-                SqlConnection connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
-                SqlCommand cmd = new SqlCommand(command, connection);
-                if (parameters is not null)
-                    foreach (var param in parameters) cmd.Parameters.Add(new SqlParameter(param.Item1, param.Item2));
-                int howMany = await cmd.ExecuteNonQueryAsync();
-                await connection.CloseAsync();
-                return howMany;
-            }
-            catch (Exception e) { await Console.Out.WriteLineAsync(e.Message); return -1; }
-        }*/
+        /*        private async Task<int> execNonQueryAsync(string command, List<(string, string)>? parameters = null)
+                {
+                    try
+                    {
+                        SqlConnection connection = new SqlConnection(_connectionString);
+                        await connection.OpenAsync();
+                        SqlCommand cmd = new SqlCommand(command, connection);
+                        if (parameters is not null)
+                            foreach (var param in parameters) cmd.Parameters.Add(new SqlParameter(param.Item1, param.Item2));
+                        int howMany = await cmd.ExecuteNonQueryAsync();
+                        await connection.CloseAsync();
+                        return howMany;
+                    }
+                    catch (Exception e) { await Console.Out.WriteLineAsync(e.Message); return -1; }
+                }*/
         #endregion
     }
 }

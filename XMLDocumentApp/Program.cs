@@ -121,6 +121,8 @@ if (stringDocs is not null)
     Console.WriteLine("!!!");
 }*/
 
+// Console.WriteLine("Edit node name : " + xService.EditNodeName(17, "catalog/book[2]/autor", "author"));
+
 try
 {
     var listOfDictionaries = xService.GetStructuredNodes(17, "//book", new string[] { "title", "author" });

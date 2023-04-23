@@ -616,6 +616,49 @@ namespace XMLDocumentApp.Tests
         }
 
         [Fact]
+        public void Should_ReturnFalse_When_ChangingNameOfTheNodeButNodeDoesNotExist()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            bool isModified = _xService.EditNodeName(id, "catalog/book[2]/autor", "autor");
+            Assert.False(isModified);
+        }
+
+        [Fact]
+        public void Should_ModifyNodeNameAndReturnTrue_When_ChangingNameOfTheNode()
+        {
+            var xml = @"<catalog>
+            <book id=""1"">
+                <title>Lalka</title>
+                <author>Boleslaw Prus</author>
+            </book>
+            <book id=""2"">
+                <title>Pan Tadeusz</title>
+                <author>Adam Mickiewicz</author>
+            </book>
+            </catalog>";
+
+            int id = _xService.CreateDocument("books", "testing", xml);
+
+            bool isModified = _xService.EditNodeName(id, "catalog/book[2]/author", "autor");
+            Assert.True(isModified);
+
+            Assert.Equal("Adam Mickiewicz", _xService.GetNodeText(id, "catalog/book[2]/autor"));
+            Assert.False(_xService.CheckNodeIfExists(id, "catalog/book[2]/author"));
+        }
+
+        [Fact]
         public void Should_ReturnFalse_When_NodeDoesNotExist()
         {
             var xml = @"<catalog>
