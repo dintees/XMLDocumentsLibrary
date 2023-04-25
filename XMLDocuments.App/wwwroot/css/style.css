@@ -1,0 +1,22 @@
+﻿.bw-form {
+    width: 50%;
+    padding: 30px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin: 30px;
+}
+
+.error {
+    font-size: 13px;
+    font-weight: bold;
+    color: #f00;
+}
+
+.text-danger {
+    display: block;
+}
+
+pre {
+    border: 1px solid #ccc;
+    padding: 10px;
+}

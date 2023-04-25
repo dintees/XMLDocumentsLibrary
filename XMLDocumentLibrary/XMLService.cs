@@ -188,6 +188,10 @@ namespace XMLDocumentLibrary
         /// <exception cref="Exception">There is no document with provided id</exception>
         public bool ModifyDocument(int id, string? newTitle = null, string? newDescription = null, string? newXMLDocument = null)
         {
+            // if document exists in the database
+            int count = execScalarValue($"SELECT COUNT(*) AS value FROM XMLDocument WHERE title = '{newTitle}'");
+            if (count > 0) throw new Exception("Document with this title is now in the database");
+
             if (newXMLDocument is not null)
                 if (!validateXML(newXMLDocument)) throw new XmlException("XML format is invalid");
 

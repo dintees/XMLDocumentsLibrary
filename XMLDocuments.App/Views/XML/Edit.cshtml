@@ -1,0 +1,27 @@
+﻿@model XMLDocumentLibrary.Models.XMLDoc
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+<form method="post" class="bw-form" asp-action="Edit">
+    <label for="Title">Title</label>
+    <input type="text" class="form-control" asp-for="Title" />
+
+    <label for="Description">Description</label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+
+    <label for="XMLDocument">XML document</label>
+    <textarea asp-for="XMLDocument" class="form-control"></textarea>
+
+    <button class="btn btn-primary mt-3">Save</button>
+
+    <div class="mt-2">
+        @Html.ActionLink("Back", "Index")
+    </div>
+    
+    @if (ViewBag.Error is not null)
+    {
+        <div class="error mt-3">@ViewBag.Error</div>
+    }
+</form>

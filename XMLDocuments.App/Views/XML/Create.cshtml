@@ -1,0 +1,31 @@
+﻿@model XMLDocuments.App.Models.XML.CreateXMLDocumentModel
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<form method="post" class="bw-form" asp-action="Create">
+    @*@Html.AntiForgeryToken()*@
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <label for="Title">Title</label>
+    <input type="text" class="form-control" asp-for="Title" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+
+    <label for="Description">Description</label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+
+    <label for="XMLDocument">XML document</label>
+    <textarea asp-for="XMLDocument" class="form-control"></textarea>
+
+    <button class="btn btn-primary mt-3">Save</button>
+
+    <div class="mt-2">
+        @Html.ActionLink("Back", "Index")
+    </div>
+
+    @if (ViewBag.Error is not null)
+    {
+        <div class="error mt-3">@ViewBag.Error</div>
+    }
+</form>

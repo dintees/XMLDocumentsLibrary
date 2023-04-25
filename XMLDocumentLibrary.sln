@@ -5,9 +5,9 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentLibrary", "XMLDocumentLibrary\XMLDocumentLibrary.csproj", "{254D5E32-E6C1-4454-A50F-83AA024B0DC7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentApp", "XMLDocumentApp\XMLDocumentApp.csproj", "{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentApp.Tests", "XMLDocumentApp.Tests\XMLDocumentApp.Tests.csproj", "{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocumentApp.Tests", "XMLDocumentApp.Tests\XMLDocumentApp.Tests.csproj", "{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocuments.App", "XMLDocuments.App\XMLDocuments.App.csproj", "{227C1467-B4DD-47F9-B843-DB7579FB80CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{254D5E32-E6C1-4454-A50F-83AA024B0DC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1CD5D6E-E5FF-4916-8B64-D4E9943C8737}.Release|Any CPU.Build.0 = Release|Any CPU
 		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{227C1467-B4DD-47F9-B843-DB7579FB80CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{227C1467-B4DD-47F9-B843-DB7579FB80CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{227C1467-B4DD-47F9-B843-DB7579FB80CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{227C1467-B4DD-47F9-B843-DB7579FB80CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

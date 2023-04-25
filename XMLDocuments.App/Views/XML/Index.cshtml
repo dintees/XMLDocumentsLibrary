@@ -1,0 +1,40 @@
+﻿@model IEnumerable<XMLDocumentLibrary.Models.XMLDoc>
+@{
+    ViewData["Title"] = "List documents";
+}
+<h2>List of all XML documents</h2>
+
+<a asp-action="Create" class="btn btn-lg btn-success">Create new XML document</a>
+
+
+@if (TempData["Error"] is not null)
+{
+    <div class="error">@TempData["Error"]</div>
+}
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Lp</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    
+        @{ int index = 1;}
+        @foreach(var row in Model)
+        {
+            <tr>
+                <td>@(index++)</td>
+                <td>@row.Title</td>
+                <td>@row.Description</td>
+                <td>
+                    @Html.ActionLink("View", "View", new { id = row.Id })
+                    @Html.ActionLink("Edit", "Edit", new { id = row.Id })
+                    @Html.ActionLink("Delete", "Delete", new { id = row.Id}, new { onclick = "return confirm('Are you sure?');" })
+                </td>
+            </tr>
+        }
+   
+</table>
