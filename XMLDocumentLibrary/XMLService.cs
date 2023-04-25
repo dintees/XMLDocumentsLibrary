@@ -1,16 +1,11 @@
 ﻿using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Xml;
-using System.Threading.Tasks;
 using XMLDocumentLibrary.Models;
-using System.Collections.Concurrent;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Data;
 
 namespace XMLDocumentLibrary
 {
-    public class XMLService
+    public class XMLService : IXMLService
     {
         private readonly string? _connectionString;
 
@@ -504,25 +499,22 @@ namespace XMLDocumentLibrary
         public bool EditNodeName(int id, string xQuery, string newName)
         {
             if (!CheckNodeIfExists(id, xQuery)) return false;
-            SqlConnection connection = new SqlConnection(_connectionString);
-            connection.Open();
-            using (SqlCommand insertNodeCommand = new SqlCommand($"UPDATE XMLDocument SET XDocument.modify('insert <{newName}>{{{xQuery}/node()}}</{newName}> after ({xQuery})[1]') WHERE Id = @id; ", connection))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                insertNodeCommand.Parameters.AddWithValue("@id", id);
-                    /*
-                    SqlParameter newElementNameParam = new SqlParameter("@newElementName", SqlDbType.NVarChar);
-                    newElementNameParam.Value = newName;
-                    command.Parameters.Add(newElementNameParam);*/
-
-                int howMany = insertNodeCommand.ExecuteNonQuery();
-                if (howMany > 0)
+                connection.Open();
+                using (SqlCommand insertNodeCommand = new SqlCommand($"UPDATE XMLDocument SET XDocument.modify('insert <{newName}>{{{xQuery}/node()}}</{newName}> after ({xQuery})[1]') WHERE Id = @id; ", connection))
                 {
-                    using (SqlCommand deleteOldNodeCommand = new SqlCommand($"UPDATE XMLDocument SET XDocument.modify('delete {xQuery}') WHERE Id = @id;", connection))
+                    insertNodeCommand.Parameters.AddWithValue("@id", id);
+                    int howMany = insertNodeCommand.ExecuteNonQuery();
+                    if (howMany > 0)
                     {
-                        deleteOldNodeCommand.Parameters.AddWithValue("@id", id);
+                        using (SqlCommand deleteOldNodeCommand = new SqlCommand($"UPDATE XMLDocument SET XDocument.modify('delete {xQuery}') WHERE Id = @id;", connection))
+                        {
+                            deleteOldNodeCommand.Parameters.AddWithValue("@id", id);
 
-                        howMany = deleteOldNodeCommand.ExecuteNonQuery();
-                        return (howMany > 0);
+                            howMany = deleteOldNodeCommand.ExecuteNonQuery();
+                            return (howMany > 0);
+                        }
                     }
                 }
             }

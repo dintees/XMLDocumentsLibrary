@@ -121,7 +121,7 @@ if (stringDocs is not null)
     Console.WriteLine("!!!");
 }*/
 
-// Console.WriteLine("Edit node name : " + xService.EditNodeName(17, "catalog/book[2]/autor", "author"));
+// Console.WriteLine("Rename the node : " + xService.EditNodeName(17, "catalog/book[2]/autor", "author"));
 
 try
 {
