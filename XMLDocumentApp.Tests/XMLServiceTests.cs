@@ -820,7 +820,7 @@ namespace XMLDocumentApp.Tests
 
             int id = _xService.CreateDocument("books", "testing", xml);
 
-            bool isDeleted = _xService.DeleteNodeFromDocument(id, "catalog/book[3]/title");
+            bool isDeleted = _xService.DeleteNode(id, "catalog/book[3]/title");
             Assert.False(isDeleted);
         }
 
@@ -840,7 +840,7 @@ namespace XMLDocumentApp.Tests
 
             int id = _xService.CreateDocument("books", "testing", xml);
 
-            bool isDeleted = _xService.DeleteNodeFromDocument(id, "catalog/book[2]/title");
+            bool isDeleted = _xService.DeleteNode(id, "catalog/book[2]/title");
             Assert.True(isDeleted);
 
             Assert.Null(_xService.GetNodeText(id, "catalog/book[2]/title"));

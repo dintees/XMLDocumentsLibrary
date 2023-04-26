@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentLibrary", "XMLDo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocumentApp.Tests", "XMLDocumentApp.Tests\XMLDocumentApp.Tests.csproj", "{42BEF7C7-353C-464F-8FB5-88A4AEA10F95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLDocuments.App", "XMLDocuments.App\XMLDocuments.App.csproj", "{227C1467-B4DD-47F9-B843-DB7579FB80CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XMLDocuments.App", "XMLDocuments.App\XMLDocuments.App.csproj", "{227C1467-B4DD-47F9-B843-DB7579FB80CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

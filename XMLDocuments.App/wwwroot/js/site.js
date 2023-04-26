@@ -1,4 +1,12 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener("DOMContentLoaded", () => {
 
-// Write your JavaScript code.
+    // XML creation
+    // add event for changing checkbox
+    document.getElementById("changeCreateFromFileSwitch").addEventListener("change", e => {
+        const XMLTextarea = document.getElementById("XMLDocumentContent")
+        const XMLFile = document.getElementById("XMLFile")
+        XMLTextarea.disabled = !XMLTextarea.disabled
+        XMLFile.disabled = !XMLFile.disabled
+    })
+
+})

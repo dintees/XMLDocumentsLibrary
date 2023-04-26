@@ -1,0 +1,46 @@
+﻿@*@model XMLDocumentLibrary.Models.XMLDoc*@
+@model XMLDocuments.App.Models.XML.XMLViewModel
+@{
+    ViewData["Title"] = "XML View";
+}
+
+<form asp-action="XMLView" class="col-sm-3 mt-3" method="post">
+    <select asp-for="XMLDocumentId" asp-items="@ViewBag.XMLDocuments" class="form-control"></select>
+    <button class="btn btn-success">Apply</button>
+</form>
+
+
+@if(Model is not null) {
+    <div class="row">
+        <div class="col-md-5">
+            <pre>
+@Model.XMLDocumentContent
+            </pre>
+        </div>
+        <div class="col-md-3">
+            <form asp-action="XMLView" method="post" autocomplete="off">
+                <input asp-for="XMLDocumentId" type="hidden" value="@Model.XMLDocumentId" />
+
+                <select asp-for="SelectedFunction" asp-items="@ViewBag.FunctionsList" class="form-control"></select>
+                
+                <input asp-for="XQuery" type="text" class="form-control" placeholder="XQuery" />
+
+                <input asp-for="AttributeName" type="text" class="form-control" placeholder="Attribute name" />
+                <input asp-for="AttributeValue" type="text" class="form-control" placeholder="Attribute value" />
+
+                <button class="btn btn-primary mt-3">Execute</button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    @Model.SelectedFunction ():<br />
+                    @Model.XQuery
+                </div>
+            </div>
+            <pre>
+@Model.Results
+            </pre>
+        </div>
+    </div>
+}

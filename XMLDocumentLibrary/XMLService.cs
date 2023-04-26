@@ -435,7 +435,7 @@ namespace XMLDocumentLibrary
             {
                 SqlConnection connection = new SqlConnection(_connectionString);
                 connection.Open();
-                string query = xQuery + "[@" + nameOfAttribute + (valueOfAttribute == null ? "]" : " = " + valueOfAttribute + "]");
+                string query = xQuery + "[@" + nameOfAttribute + (valueOfAttribute == null ? "]" : " = \"" + valueOfAttribute + "\"]");
                 SqlCommand cmd = new SqlCommand($"SELECT T.c.query('.') AS results FROM XMLDocument CROSS APPLY XDocument.nodes('{query}') AS T(c) WHERE Id = @id;", connection);
                 cmd.Parameters.Add(new SqlParameter("@id", id));
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -487,7 +487,7 @@ namespace XMLDocumentLibrary
             if (isValid)
             {
                 if (!CheckNodeIfExists(id, xQuery)) return false;
-                int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('insert {newNodeString} as last into ({xQuery})') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
+                int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('insert {newNodeString} as last into ({xQuery})[1]') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });
                 return (howMany > 0);
             }
             else throw new XmlException("XML format is invalid");
@@ -574,7 +574,7 @@ namespace XMLDocumentLibrary
         /// <param name="id">Id of the document</param>
         /// <param name="xQuery">xQuery ox XPath expression</param>
         /// <returns>True if the node has been deleted from the document, else otherwise</returns>
-        public bool DeleteNodeFromDocument(int id, string xQuery)
+        public bool DeleteNode(int id, string xQuery)
         {
             if (!CheckNodeIfExists(id, xQuery)) return false;
             int howMany = execNonQuery($"UPDATE XMLDocument SET XDocument.modify('delete {xQuery}') WHERE Id = @id;", new List<(string, string)> { ("@id", id.ToString()) });

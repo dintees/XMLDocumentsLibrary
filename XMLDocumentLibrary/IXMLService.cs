@@ -13,7 +13,7 @@ namespace XMLDocumentLibrary
         int CreateDocumentFromFile(string title, string description, string filepath);
         int DeleteAllDocuments();
         bool DeleteDocumentById(int id);
-        bool DeleteNodeFromDocument(int id, string xQuery);
+        bool DeleteNode(int id, string xQuery);
         bool EditNodeName(int id, string xQuery, string newName);
         bool EditNodeText(int id, string xQuery, string newValue);
         Dictionary<string, string>? GetAllAttributes(int id, string xQuery);
