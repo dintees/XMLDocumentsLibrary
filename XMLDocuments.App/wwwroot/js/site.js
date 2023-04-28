@@ -68,8 +68,9 @@ function changeAttributesFieldsVisibility() {
             field1.setAttribute("placeholder", "Attribute name")
             break;
         case "GetStructuredNodes":
-            field1.style.display = "none";
+            field1.style.display = "block";
             field2.style.display = "none";
+            field1.setAttribute("placeholder", "Fields separated by \",\"")
             break;
 
         // ---
