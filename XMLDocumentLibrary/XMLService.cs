@@ -16,7 +16,7 @@ namespace XMLDocumentLibrary
 
         #region DocumentOperations
         /// <summary>
-        /// Validates connection iwth database
+        /// Validates connection with database
         /// </summary>
         /// <returns>Bool value represents connectivity state</returns>
         public bool CheckConnection()
